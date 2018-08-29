@@ -68,32 +68,32 @@ mkdir -p "$output_dir"
 
 rm -f "$output_docx" "$output_html" "$output_pdf" "$output_rtf" "$output_tex"
 
-# Generate Microsoft Word document intermediate Markdown file and generic
+# Generate Microsoft Word document from master Markdown file and generic
 # reference document.
 
 eval $pandoc --reference-doc="$reference_docx"  \
     --from='markdown' --to='docx'  --output="$output_docx" "$input_md"
 
-# Generate HTML document intermediate Markdown file and generic HTML header.
+# Generate HTML document from master Markdown file and generic HTML header.
 
 eval $pandoc --include-in-header="$header_html" \
     --from='markdown' --to='html5' --output="$output_html" "$input_md"
 
-# Generate PDF document from intermediate Markdown file and generic LaTeX
-# header; as documented here, the output format must be specified as "latex"
-# instead of "pdf":
+# Generate PDF document from master Markdown file and generic LaTeX header; as
+# documented here, the output format must be specified as "latex" instead of
+# "pdf":
 #
 # https://hub.docker.com/r/jagregory/pandoc/
 
 eval $pandoc --include-in-header="$header_tex"  \
     --from='markdown' --to='latex' --output="$output_pdf"  "$input_md"
 
-# Generate RTF document from intermediate Markdown file.
+# Generate RTF document from master Markdown file.
 
 eval $pandoc                                    \
     --from='markdown' --to='rtf'   --output="$output_rtf"  "$input_md"
 
-# Generate LaTeX document from intermediate Markdown file.
+# Generate LaTeX document from master Markdown file.
 
 eval $pandoc                                    \
     --from='markdown' --to='latex' --output="$output_tex"  "$input_md"

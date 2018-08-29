@@ -1,6 +1,5 @@
-% Title and first first-level heading
-If the title is not specified in this way, the output filename will be used as the title of the HTML output document.
-
+First first-level heading
+=========================
 [Lorem ipsum](https://en.wikipedia.org/wiki/Lorem_ipsum) dolor sit amet, consectetur adipiscing elit. Donec egestas elit est, eget accumsan nunc tempor auctor. Mauris congue sapien sed sollicitudin commodo.
 
 * Etiam convallis metus libero, vitae fringilla massa porttitor nec.
