@@ -1,0 +1,99 @@
+#!/bin/bash -evx
+
+# Support generation of HTML, PDF, and other versions of a single master
+# document, which is kept under source control in Markdown format.
+
+# Ensure that the current working directory is the script parent directory (the
+# directory in which this Bash script resides); this is necessary for proper
+# file access in the Docker container used for the conversions.
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+# Name of the directory in which to place generated files, relative to the
+# script parent directory.
+
+output_dir='output'
+
+# Name of the directory containing generic content for inclusion in generated
+# files, relative to the script parent directory.
+
+include_dir='include'
+
+# Filename prefix of master input file.
+
+input='demo'
+
+# Master input file, in Markdown format.
+
+input_md="$input.md"
+
+# Microsoft Word, HTML, PDF, RTF, and LaTeX output documents.
+
+output_docx="$output_dir/$input.docx"
+output_html="$output_dir/$input.html"
+output_pdf="$output_dir/$input.pdf"
+output_rtf="$output_dir/$input.rtf"
+output_tex="$output_dir/$input.tex"
+
+# Command to run Pandoc in a Docker container, mounting a Docker volume in
+# order to allow access to files in the current directory and its
+# subdirectories.  The output file is a standalone document, not a fragment,
+# and "smart" processing of apostrophes, quotation marks, hyphens, and dashes
+# is enabled.  The MSYS_NO_PATHCONV variable is set to allow proper operation
+# in the Windows Git Bash environment.
+
+pandoc="MSYS_NO_PATHCONV=1 docker run --volume='$PWD:/source' \
+jagregory/pandoc --standalone --smart"
+
+# Generic HTML header specifying formatting options like the default typeface
+# style.
+
+header_html="$include_dir/header.html"
+
+# Generic LaTeX header specifying formatting options like like the margins and
+# the default typeface style.
+
+header_tex="$include_dir/header.tex"
+
+# Generic Microsoft Word reference document specifying formatting options like
+# the default typeface style.
+
+reference_docx="$include_dir/reference.docx"
+
+# Create the output directory if it doesn't already exist.
+
+mkdir -p "$output_dir"
+
+# Remove output files, if present, to ensure a clean build.
+
+rm -f "$output_docx" "$output_html" "$output_pdf" "$output_rtf" "$output_tex"
+
+# Generate Microsoft Word document intermediate Markdown file and generic
+# reference document.
+
+eval $pandoc --reference-doc="$reference_docx"  \
+    --from='markdown' --to='docx'  --output="$output_docx" "$input_md"
+
+# Generate HTML document intermediate Markdown file and generic HTML header.
+
+eval $pandoc --include-in-header="$header_html" \
+    --from='markdown' --to='html5' --output="$output_html" "$input_md"
+
+# Generate PDF document from intermediate Markdown file and generic LaTeX
+# header; as documented here, the output format must be specified as "latex"
+# instead of "pdf":
+#
+# https://hub.docker.com/r/jagregory/pandoc/
+
+eval $pandoc --include-in-header="$header_tex"  \
+    --from='markdown' --to='latex' --output="$output_pdf"  "$input_md"
+
+# Generate RTF document from intermediate Markdown file.
+
+eval $pandoc                                    \
+    --from='markdown' --to='rtf'   --output="$output_rtf"  "$input_md"
+
+# Generate LaTeX document from intermediate Markdown file.
+
+eval $pandoc                                    \
+    --from='markdown' --to='latex' --output="$output_tex"  "$input_md"
